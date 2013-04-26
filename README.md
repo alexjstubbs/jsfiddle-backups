@@ -1,4 +1,9 @@
-jsfiddle-backups
+## NOTICE: This script currently only downloads a singl fiddle. It is in the works!
+
+Description
 ================
 
-Create local backups of all your jsfiddles
+A python script to download and create a local backup all of your fiddles
+
+Usage
+================
