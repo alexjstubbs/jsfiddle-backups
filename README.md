@@ -1,4 +1,4 @@
-## NOTICE: This script currently only downloads a singl fiddle. It is in the works!
+**NOTICE: This script currently only downloads a single fiddle. It is in the works!**
 
 Description
 ================
