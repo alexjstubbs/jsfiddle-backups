@@ -8,9 +8,9 @@ import urllib2
 
 #common messages
 n1 = "[!] Already Exists! Update your fiddle then run command on new url"
-n2 = "Making Directory: "
-n3 = "[!] Crawling Fiddle..."
-
+n2 = "[i] Making Directory: "
+n3 = "[i] Crawling Fiddle..."
+n4 = "[i] Saving Original Fiddle..."
 #get arguments and build base url
 url = sys.argv[1];
 urllist = urlparse.urlsplit(url)
@@ -42,7 +42,20 @@ else:
 	print n1 
 	exit()
 
+
 #Crawl page
 print n3
-page = urllib2.urlopen(ourl)
+#page = urllib2.urlopen(ourl)
+page = urllib2.Request(ourl)
+response = urllib2.urlopen(page)
+the_page = response.read()
+
+#Save Original
+print n4
+path = "fiddles/" + dir_ + "/index.html"
+f = open(path, 'w+')
+
+f.write(the_page)
+f.close()
+
 
