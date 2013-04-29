@@ -5,57 +5,73 @@ import re
 import urlparse
 from bs4 import BeautifulSoup
 import urllib2
-
-#common messages
-n1 = "[!] Already Exists! Update your fiddle then run command on new url"
-n2 = "[i] Making Directory: "
-n3 = "[i] Crawling Fiddle..."
-n4 = "[i] Saving Original Fiddle..."
-#get arguments and build base url
-url = sys.argv[1];
-urllist = urlparse.urlsplit(url)
-ulist = list(urllist)
-
-#replace parts of url
-h = ulist[0].replace('http', 'http://')
-p = ulist[1] = 'fiddle.jshell.net'
-t = ulist[2].replace('embedded/result', 'show/light')
-
-ulist[0] = h
-ulist[2] = t
-
-#join url
-ourl = ''.join(ulist)
-
-#make directories
-if not os.path.exists('fiddles'):
-    os.makedirs('fiddles')
-    print n2 + '/fiddles'
-
-dir_ = ulist[2].rsplit('/')[2] + "/" + ulist[2].rsplit('/')[3]
-
-if not os.path.exists('fiddles/' + dir_):
-	print n2 + dir_
-	os.makedirs("fiddles/" + dir_)
-
-else:
-	print n1 
-	exit()
+import simplejson as json
 
 
-#Crawl page
-print n3
-#page = urllib2.urlopen(ourl)
-page = urllib2.Request(ourl)
-response = urllib2.urlopen(page)
-the_page = response.read()
+def main(argv):
+	#get arguments and build base url
+	if len(sys.argv) == 1:
+		print "[!] No username specified!"
+		exit()
+	else:
+		user = sys.argv[1];
 
-#Save Original
-print n4
-path = "fiddles/" + dir_ + "/index.html"
-f = open(path, 'w+')
+	obj = "http://jsfiddle.net/api/user/" + user + "/demo/list.json"
 
-f.write(the_page)
-f.close()
+	fiddles = json.load(urllib2.urlopen(obj))
+
+	for index, item in enumerate(fiddles):
+
+		stash(fiddles[index]["title"], fiddles[index]["version"], fiddles[index]["url"], fiddles[index]["description"])
+
+	return
+
+def stash(title, version, url, description):
+
+	#make main directory
+	if not os.path.exists('fiddles'):
+	    os.makedirs('fiddles')
+	    print "[i] Creating Directory: " + 'fiddles'	
+
+	#make sub directory
+	if not os.path.exists('fiddles/' + title):
+	    os.makedirs('fiddles/' + title)
+	    print "[i] Creating Directory: " + 'fiddles/' + title
+
+	#make readme file
+	path = "fiddles/" + title + "/readme.md"
+	f = open(path, 'w+')
+	f.write("##" + title + " (version: " + str(version) + ")\n" + description)
+	f.close()
+
+	#make url
+	urllist = urlparse.urlsplit(url)
+	ulist = list(urllist)
 
 
+	h = ulist[0].replace('http', 'http://')
+	p = ulist[1].replace('jsfiddle.net', 'fiddle.jshell.net')
+	s = ulist[3].replace('', 'show/light/')
+
+	# t = ulist[2].replace('embedded/result', 'show/light')
+
+	ulist[0] = h
+	ulist[1] = p
+	ulist[3] = s;
+
+	ourl = ''.join(ulist)
+
+	page = urllib2.Request(ourl)
+	response = urllib2.urlopen(page)
+	the_page = response.read()
+
+	path = "fiddles/" + title + "/index.html"
+	f = open(path, 'w+')
+	f.write(the_page)
+	f.close()
+
+	print "[i] Saved fiddle: " + title
+
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
