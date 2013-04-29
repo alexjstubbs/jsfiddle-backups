@@ -1,12 +1,9 @@
 #!/usr/bin/python
 
 import sys, os
-import re
 import urlparse
-from bs4 import BeautifulSoup
 import urllib2
 import simplejson as json
-
 
 def main(argv):
 	#get arguments and build base url
