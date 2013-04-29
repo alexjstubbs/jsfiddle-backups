@@ -22,56 +22,56 @@ def main(argv):
 
 	for index, item in enumerate(fiddles):
 
-		stash(fiddles[index]["title"], fiddles[index]["version"], fiddles[index]["url"], fiddles[index]["description"])
+		print "[i] Saving/Updating fiddle: " + fiddles[index]["title"] + "... "
+		stash(fiddles[index]["title"], fiddles[index]["latest_version"], fiddles[index]["url"], fiddles[index]["description"])
 
+	print "[i] All Backed Up!"
 	return
 
 def stash(title, version, url, description):
 
-	#make main directory
-	if not os.path.exists('fiddles'):
-	    os.makedirs('fiddles')
-	    print "[i] Creating Directory: " + 'fiddles'	
 
-	#make sub directory
-	if not os.path.exists('fiddles/' + title):
-	    os.makedirs('fiddles/' + title)
-	    print "[i] Creating Directory: " + 'fiddles/' + title
+	for i in range(version):
 
-	#make readme file
-	path = "fiddles/" + title + "/readme.md"
-	f = open(path, 'w+')
-	f.write("##" + title + " (version: " + str(version) + ")\n" + description)
-	f.close()
+		#make url
+		urllist = urlparse.urlsplit(url)
+		ulist = list(urllist)
 
-	#make url
-	urllist = urlparse.urlsplit(url)
-	ulist = list(urllist)
+		h = ulist[0].replace('http', 'http://')
+		p = ulist[1].replace('jsfiddle.net', 'fiddle.jshell.net')
+		v = ulist[3].replace('', str(i))
+		s = ulist[4].replace('', '/show/light/')
 
+		ulist[0] = h
+		ulist[1] = p
+		ulist[3] = v
+		ulist[4] = s
 
-	h = ulist[0].replace('http', 'http://')
-	p = ulist[1].replace('jsfiddle.net', 'fiddle.jshell.net')
-	s = ulist[3].replace('', 'show/light/')
+		ourl = ''.join(ulist)
 
-	# t = ulist[2].replace('embedded/result', 'show/light')
+		page = urllib2.Request(ourl)
+		response = urllib2.urlopen(page)
+		the_page = response.read()
 
-	ulist[0] = h
-	ulist[1] = p
-	ulist[3] = s;
+		#make main directory
+		if not os.path.exists('fiddles'):
+		    os.makedirs('fiddles')
 
-	ourl = ''.join(ulist)
+		#make sub directory
+		if not os.path.exists('fiddles/' + title + '/' + str(i)):
+		    os.makedirs('fiddles/' + title + '/' + str(i))
 
-	page = urllib2.Request(ourl)
-	response = urllib2.urlopen(page)
-	the_page = response.read()
+		#make readme file
+		path = "fiddles/" + title + '/' + str(i) + "/README.md"
+		f = open(path, 'w+')
+		f.write("##" + title + "\nDescription: " + description + "\nVersions: " + str(i) + "\nurl: " + url)
+		f.close()
 
-	path = "fiddles/" + title + "/index.html"
-	f = open(path, 'w+')
-	f.write(the_page)
-	f.close()
-
-	print "[i] Saved fiddle: " + title
-
+		#make version files
+		path = "fiddles/" + title + '/' + str(i) + "/index.html"
+		f = open(path, 'w+')
+		f.write(the_page)
+		f.close()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
